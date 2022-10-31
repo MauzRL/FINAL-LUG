@@ -15,9 +15,20 @@ const productController = {
     },
     add: async (req: Request, res: Response) =>{
         try {
-            const newProduct = new productModel({name: req.body.name})
-            await newProduct.save()
-            res.send(newProduct)
+
+            const isInProducts = await productModel.findOne({name: req.body.name})
+
+            if (isInProducts) {
+
+                res.send('Este producto ya se encuentra en la Base de Datos')
+
+            } else {
+
+                const newProduct = new productModel({...req.body})
+                await newProduct.save()
+                res.send(newProduct)
+            }
+
         } catch (error) {
             res.status(500).send(error)
         }

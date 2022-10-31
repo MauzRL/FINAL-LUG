@@ -8,7 +8,7 @@ const cartController = {
         {
             const myCart = await cartModel.findOne()
             if (!myCart) {
-                res.send('El carrito se ecnuentra vacio')
+                res.send('El carrito se encuentra vacio')
             } else {
 
                 let i
@@ -28,7 +28,7 @@ const cartController = {
             }
 
 
-             res.status(200).send(`Su carrito: \n   ${cart}\n  Precio total: ${totalPrices}`)
+             res.status(200).send(`Su carrito:\n   ${cart}\n  Precio total: ${totalPrices}`)
 
             }
             
@@ -86,7 +86,7 @@ const cartController = {
                 res.send('Este producto no se encuentra entre nuestros productos')
             } else if (!isInCart) {
             
-                res.send('No se ecnuentra el prducto en el carrito')
+                res.send('No se encuentra el prducto en el carrito')
             
 
             } else if (isInCart && isInCart.amount == 1) {
