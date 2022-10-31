@@ -36,9 +36,17 @@ const productController = {
 
     delete: async(req: Request, res: Response) => {
         try {
-            
-            const productName = await productModel.findOneAndDelete({name: req.body.name})
-            res.send(`Se elimino ${productName}`)
+
+            const isInProducts = await productModel.findOne({name: req.body.name})
+
+            if (!isInProducts) {
+                res.send("No se encontro el producto")
+                
+            } else {
+
+                const productName = await productModel.findOneAndDelete({name: req.body.name})
+                res.send(`Se elimino ${productName}`)   
+            }
             
         } catch(error){
             res.status(500).send(error)

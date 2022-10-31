@@ -79,8 +79,6 @@ const cartController = {
 
             const isInCart = await cartModel.findOne({name: req.body.name})
 
-            
-
 
             if(!isInProducts) {
                 res.send('Este producto no se encuentra entre nuestros productos')
