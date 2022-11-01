@@ -46,13 +46,22 @@ const cartController = {
 
             const isInCart = await cartModel.findOne({name: req.body.name})
 
+            
+
 
             if(!isInProducts) {
                 res.send('Este producto no se encuentra entre nuestros productos')
-            } else if (!isInCart) {
-                const newProductInCart = new cartModel({name: isInProducts.name, amount: 1, price: isInProducts.price})                    
+            } else if (isInProducts.stock <= 0) {
+                res.send(`"No hay stock disponible para: "${isInProducts.name}`)
+
+            }
+             else if (!isInCart) {
+                const newProductInCart = new cartModel({name: isInProducts.name, amount: 1, price: isInProducts.price}) 
+                
+                isInProducts.stock--
             
                 newProductInCart.save()
+                isInProducts.save()
                 res.send(`Se agrego el producto: "${newProductInCart.name}" al carrito ${newProductInCart} `)
             
 
@@ -60,6 +69,8 @@ const cartController = {
                const producto = isInCart
                 
                producto.amount++
+               isInProducts.stock--
+               isInProducts.save()
                producto.save()
                 res.send(producto)
                 
@@ -94,6 +105,10 @@ const cartController = {
                producto.amount = 0
                
                const deleteProduct = await cartModel.findOneAndDelete({name: req.body.name})
+
+               isInProducts.stock++
+               isInProducts.save()
+
                
                 
                
@@ -105,6 +120,9 @@ const cartController = {
                 const producto = isInCart
                 
                producto.amount--
+               isInProducts.stock++
+               isInProducts.save()
+
                producto.save()
                 res.send(producto)
 
