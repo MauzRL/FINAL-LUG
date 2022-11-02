@@ -1,4 +1,6 @@
-import { Request, Response } from "express";
+import { request, Request, Response } from "express";
+import { isErrored } from "stream";
+import { isNull, isNumber } from "util";
 import productModel from "../models/productos"
 
 const productController = {
@@ -50,6 +52,40 @@ const productController = {
             
         } catch(error){
             res.status(500).send(error)
+        }
+    },
+
+    update: async(req:Request, res: Response) => {
+        try {
+            const isInProducts = await productModel.findOne({name: req.body.name})
+
+            const util = require('util')
+
+            
+
+           const numeroPrice =  util.isNumber(req.body.price)
+           const numeroStock =  util.isNumber(req.body.stock)
+
+
+            if (!isInProducts) {
+                res.send("No se encuentra ese producto")
+
+            } else if(!numeroPrice || !numeroStock) {
+                res.send("Complete los campos")
+
+            } else {          
+
+                isInProducts.price = req.body.price
+                isInProducts.stock = req.body.stock
+                isInProducts.save()
+
+                res.send(`Se actualizo correctamente ${isInProducts.name}. \n ${isInProducts}`)
+            }
+
+
+        } catch (error) {
+            res.status(500).send(error)
+
         }
     }
 }
