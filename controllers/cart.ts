@@ -14,7 +14,6 @@ const cartController = {
                 let i
                 let totalPrices = 0
                 let price = 0
-
                 let cant = 0
             
                 const cart = await cartModel.find()
@@ -27,8 +26,9 @@ const cartController = {
                 totalPrices = totalPrices + (cant*price)
             }
 
+            
 
-             res.status(200).send(`Su carrito:\n   ${cart}\n  Precio total: ${totalPrices}`)
+             res.status(200).send(`Su carrito:\n ${cart} \n  Precio total: ${totalPrices}`)
 
             }
             
@@ -52,7 +52,7 @@ const cartController = {
             if(!isInProducts) {
                 res.send('Este producto no se encuentra entre nuestros productos')
             } else if (isInProducts.stock <= 0) {
-                res.send(`"No hay stock disponible para: "${isInProducts.name}`)
+                res.send(`"No hay stock disponible para: "${isInProducts.name}"`)
 
             }
              else if (!isInCart) {
@@ -62,7 +62,7 @@ const cartController = {
             
                 newProductInCart.save()
                 isInProducts.save()
-                res.send(`Se agrego el producto: "${newProductInCart.name}" al carrito ${newProductInCart} `)
+                res.send(`Se agrego el producto: "${newProductInCart.name}" al carrito. \n Precio: ${newProductInCart.price} \n Cantidad: ${newProductInCart.amount} `)
             
 
             } else if (isInCart) {
@@ -72,7 +72,7 @@ const cartController = {
                isInProducts.stock--
                isInProducts.save()
                producto.save()
-                res.send(producto)
+                res.send(`Se agrego nuevamente "${producto.name}" al carrito. \n Cantidad: ${producto.amount}`)
                 
             }
 
@@ -113,7 +113,7 @@ const cartController = {
                 
                
                
-                res.send(`Se elimino ${deleteProduct?.name} del carrito`)
+                res.send(`Se elimino "${deleteProduct?.name}" del carrito.`)
                 
             } else if(isInCart) {
 
@@ -124,7 +124,7 @@ const cartController = {
                isInProducts.save()
 
                producto.save()
-                res.send(producto)
+                res.send(`Se elimino "${producto.name}" del carrito. \n Cantidad: ${producto.amount}`)
 
             }
 

@@ -1,7 +1,6 @@
 import { request, Request, Response } from "express";
-import { isErrored } from "stream";
-import { isNull, isNumber } from "util";
 import productModel from "../models/productos"
+
 
 const productController = {
     get: async (req: Request, res: Response) =>{
@@ -42,12 +41,12 @@ const productController = {
             const isInProducts = await productModel.findOne({name: req.body.name})
 
             if (!isInProducts) {
-                res.send("No se encontro el producto")
+                res.send("No se encontro el producto ingresado")
                 
             } else {
 
                 const productName = await productModel.findOneAndDelete({name: req.body.name})
-                res.send(`Se elimino ${productName}`)   
+                res.send(`Se elimino ${productName?.name}`)   
             }
             
         } catch(error){
@@ -61,17 +60,16 @@ const productController = {
 
             const util = require('util')
 
-            
 
            const numeroPrice =  util.isNumber(req.body.price)
            const numeroStock =  util.isNumber(req.body.stock)
 
 
             if (!isInProducts) {
-                res.send("No se encuentra ese producto")
+                res.send("No se encuentra el producto ingresado")
 
             } else if(!numeroPrice || !numeroStock) {
-                res.send("Complete los campos")
+                res.send("Por favor complete todos los campos")
 
             } else {          
 
@@ -79,7 +77,7 @@ const productController = {
                 isInProducts.stock = req.body.stock
                 isInProducts.save()
 
-                res.send(`Se actualizo correctamente ${isInProducts.name}. \n ${isInProducts}`)
+                res.send(`Se actualizo correctamente "${isInProducts.name}". \n Nombre: ${isInProducts.name} \n Precio: ${isInProducts.price} \n Disponibles: ${isInProducts.stock}`)
             }
 
 
