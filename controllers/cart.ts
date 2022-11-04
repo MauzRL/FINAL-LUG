@@ -1,14 +1,19 @@
 import { Request, Response } from "express";
-import cartModel from "../models/cart"
+import cartDetailModel from "../models/cartDetails"
 import productoModel from "../models/productos"
+import cartModel from "../models/cart"
 
 const cartController = {
     get: async (req: Request, res: Response) =>{
         try
         {
-            const myCart = await cartModel.findOne()
-            if (!myCart) {
-                res.send('El carrito se encuentra vacio')
+            const cartDetails = await cartDetailModel.findOne()
+
+            if (!cartDetails) {
+
+            const myCart = await cartModel.find()
+
+                res.send(myCart)
             } else {
 
                 let i
@@ -16,7 +21,7 @@ const cartController = {
                 let price = 0
                 let cant = 0
             
-                const cart = await cartModel.find()
+                const cart = await cartDetailModel.find()
 
             for (i=0; i < cart.length; i++)
             {
@@ -26,9 +31,10 @@ const cartController = {
                 totalPrices = totalPrices + (cant*price)
             }
 
-            
+            const myCart = await cartModel.findOne()
 
-             res.status(200).send(`Su carrito:\n ${cart} \n  Precio total: ${totalPrices}`)
+
+             res.status(200).send(myCart)
 
             }
             
@@ -40,11 +46,18 @@ const cartController = {
     },
     add: async (req: Request, res: Response) =>{
         try {
+            
+            const cartExist = await cartModel.findOne()
 
+            if (!cartExist) {
+                const newCart = new cartModel({name: "Carrito", details: [], total: 0})
+                await newCart.save()
+
+            }
             
             const isInProducts = await productoModel.findOne({name: req.body.name})
 
-            const isInCart = await cartModel.findOne({name: req.body.name})
+            const isInCartDetails = await cartDetailModel.findOne({name: req.body.name})
 
             
 
@@ -55,24 +68,56 @@ const cartController = {
                 res.send(`"No hay stock disponible para: "${isInProducts.name}"`)
 
             }
-             else if (!isInCart) {
-                const newProductInCart = new cartModel({name: isInProducts.name, amount: 1, price: isInProducts.price}) 
-                
-                isInProducts.stock--
+             else if (!isInCartDetails) {
             
-                newProductInCart.save()
-                isInProducts.save()
-                res.send(`Se agrego el producto: "${newProductInCart.name}" al carrito. \n Precio: ${newProductInCart.price} \n Cantidad: ${newProductInCart.amount} `)
+                const newProductInCart = new cartDetailModel({name: isInProducts.name, amount: 1, price: isInProducts.price}) 
+                
+                await isInProducts.stock--
+            
+                await newProductInCart.save()
+                await isInProducts.save()
+
+
+                const cartDetails = await cartDetailModel.find()
+
+                const myCart = await cartModel.findOne()
+
+                await myCart?.details.splice(0,myCart.details.length) //borra el array de carrito anterior
+
+                await myCart?.details.push(cartDetails) // sube el array nuevo
+
+                await myCart?.save()
+
+
+                res.send(myCart)
             
 
-            } else if (isInCart) {
-               const producto = isInCart
+            } else if (isInCartDetails) {
+
+
+               const producto = isInCartDetails
                 
-               producto.amount++
-               isInProducts.stock--
-               isInProducts.save()
-               producto.save()
-                res.send(`Se agrego nuevamente "${producto.name}" al carrito. \n Cantidad: ${producto.amount}`)
+               await producto.amount++
+               await isInProducts.stock--
+
+               await isInProducts.save()
+               await producto.save()
+
+               const cartDetails = await cartDetailModel.find()
+
+                const myCart = await cartModel.findOne()
+
+                await myCart?.details.splice(0, myCart.details.length) //borra el array de carrito anterior
+
+                await myCart?.details.push(cartDetails) // sube el array nuevo
+
+                await myCart?.save()
+
+
+
+
+               
+                res.send(myCart)
                 
             }
 
@@ -88,7 +133,7 @@ const cartController = {
 
             const isInProducts = await productoModel.findOne({name: req.body.name})
 
-            const isInCart = await cartModel.findOne({name: req.body.name})
+            const isInCart = await cartDetailModel.findOne({name: req.body.name})
 
 
             if(!isInProducts) {
@@ -104,27 +149,46 @@ const cartController = {
                 
                producto.amount = 0
                
-               const deleteProduct = await cartModel.findOneAndDelete({name: req.body.name})
+               await cartDetailModel.findOneAndDelete({name: req.body.name})
 
-               isInProducts.stock++
-               isInProducts.save()
+               await isInProducts.stock++
+               await isInProducts.save()
 
-               
+               const cartDetails = await cartDetailModel.find()
+
+               const myCart = await cartModel.findOne()
+
+               await myCart?.details.splice(0, myCart.details.length) //borra el array de carrito anterior
+
+               await myCart?.details.push(cartDetails) // sube el array nuevo
+
+               await myCart?.save()
+          
+                res.send(myCart)
                 
-               
-               
-                res.send(`Se elimino "${deleteProduct?.name}" del carrito.`)
-                
-            } else if(isInCart) {
+            } else if (isInCart) {
 
                 const producto = isInCart
                 
-               producto.amount--
-               isInProducts.stock++
-               isInProducts.save()
+               await producto.amount--
+               await isInProducts.stock++
+               
+               await isInProducts.save()
+               await producto.save()
+               
+               
+               const cartDetails = await cartDetailModel.find()
+               
+               const myCart = await cartModel.findOne()
+               
+               await myCart?.details.splice(0, myCart.details.length) //borra el array de carrito anterior
+               
+               await myCart?.details.push(cartDetails) // sube el array nuevo
+               
+               await myCart?.save()
+               
 
-               producto.save()
-                res.send(`Se elimino "${producto.name}" del carrito. \n Cantidad: ${producto.amount}`)
+                res.send(myCart)
 
             }
 
