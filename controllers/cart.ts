@@ -40,6 +40,7 @@ const cartController = {
             if(myCart) {
 
                 myCart.total = totalPrices
+                myCart.save()
             }
 
 
@@ -98,8 +99,10 @@ const cartController = {
 
                 await myCart?.save()
 
+                const carritoGet = await cartController.get(req, res)
 
-                res.send(myCart)
+
+                res.send(carritoGet)
             
 
             } else if (isInCartDetails) {
@@ -123,11 +126,14 @@ const cartController = {
 
                 await myCart?.save()
 
+                const carritoGet = await cartController.get(req, res)
+
+
 
 
 
                
-                res.send(myCart)
+                res.send(carritoGet)
                 
             }
 
@@ -158,11 +164,15 @@ const cartController = {
                 const producto = isInCart
                 
                producto.amount = 0
+               await producto.save()
+            
+
                
                await cartDetailModel.findOneAndDelete({name: req.body.name})
 
                await isInProducts.stock++
                await isInProducts.save()
+
 
                const cartDetails = await cartDetailModel.find()
 
@@ -173,8 +183,17 @@ const cartController = {
                await myCart?.details.push(cartDetails) // sube el array nuevo
 
                await myCart?.save()
+
+               
+               if(myCart) {
+                   
+                   myCart.total = 0
+                   myCart.save()
+                }
+                
+                const carritoGet = await cartController.get(req, res)
           
-                res.send(myCart)
+                res.send(carritoGet)
                 
             } else if (isInCart) {
 
@@ -196,9 +215,12 @@ const cartController = {
                await myCart?.details.push(cartDetails) // sube el array nuevo
                
                await myCart?.save()
+
+               const carritoGet = await cartController.get(req, res)
+
                
 
-                res.send(myCart)
+                res.send(carritoGet)
 
             }
 
@@ -210,10 +232,6 @@ const cartController = {
         
     }
 
-}
-
-function calcularTOTAL() {
-    
 }
 
 export default cartController
