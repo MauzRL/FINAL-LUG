@@ -9,11 +9,15 @@ const cartController = {
         {
             const cartDetails = await cartDetailModel.findOne()
 
+            const cartExist = await cartModel.findOne()
+
             if (!cartDetails) {
 
             const myCart = await cartModel.find()
 
                 res.send(myCart)
+            } else if(!cartExist) {
+                res.send("El carrito no existe")
             } else {
 
                 let i
@@ -32,6 +36,12 @@ const cartController = {
             }
 
             const myCart = await cartModel.findOne()
+
+            if(myCart) {
+
+                myCart.total = totalPrices
+            }
+
 
 
              res.status(200).send(myCart)
@@ -200,6 +210,10 @@ const cartController = {
         
     }
 
+}
+
+function calcularTOTAL() {
+    
 }
 
 export default cartController
